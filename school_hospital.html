@@ -1,0 +1,142 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>School and Hospital Map</title>
+    <meta charset="utf-8" />
+    <title></title>
+    <meta name="robots" content="noindex, nofollow" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.js"></script>
+    <link
+      href="https://api.tiles.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <script src="https://api.mapbox.com/mapbox.js/plugins/turf/v3.0.11/turf.min.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
+    </style>
+
+</head>
+
+<body>
+
+<div id='map' style='width: 1000px; height: 600px;'></div>
+
+<script src="hospitals.js" type="text/javascript"></script>
+<script src="libraries.js" type="text/javascript"></script>
+<script src="School_Locations.js" type="text/javascript"></script>
+<script src="Community_Services.js" type="text/javascript"></script>
+<script>
+	mapboxgl.accessToken = 'pk.eyJ1IjoicGV0ZXJzaGVuIiwiYSI6ImNrbTFhaXMyZTB2M2gycHBmaHU2bmR6ajQifQ.EEUPleBNyQJqb9nz4dcbQA';
+	var map = new mapboxgl.Map({
+		container: 'map',
+		style: 'mapbox://styles/mapbox/dark-v10',
+		center: [-114.0719, 51.0447],
+        zoom: 13
+	});
+
+
+map.on('load', function() {
+  map.addLayer({
+    id: 'hospitals',
+    type: 'symbol',
+    source: {
+      type: 'geojson',
+      data: hospital
+    },
+    layout: {
+      'icon-image': 'hospital-15',
+      'icon-allow-overlap': true
+    },
+    paint: { }
+  });
+  map.addLayer({
+    id: 'school',
+    type: 'symbol',
+    source: {
+      type: 'geojson',
+      data: school
+    },
+    layout: {
+      'icon-image': 'school-15'
+    },
+    paint: { }
+  });
+	map.addSource('nearest-hospital', {
+          type: 'geojson',
+          data: {
+            'type': 'FeatureCollection',
+            'features': []
+          }
+        });
+ });
+
+      var popup = new mapboxgl.Popup();
+      map.on('mousemove', function (e) {
+        var features = map.queryRenderedFeatures(e.point, {
+          layers: ['hospitals', 'school']
+        });
+        if (!features.length) {
+          popup.remove();
+          return;
+        }
+
+        var feature = features[0];
+        popup
+          .setLngLat(feature.geometry.coordinates)
+          .setHTML(feature.properties.NAME)
+          .addTo(map);
+
+        map.getCanvas().style.cursor = features.length ? 'pointer' : '';
+      });
+
+      map.on('click', function (e) {
+        var libraryFeatures = map.queryRenderedFeatures(e.point, {
+          layers: ['school']
+        });
+        if (!libraryFeatures.length) {
+          return;
+        }
+
+        var libraryFeature = libraryFeatures[0];
+
+        var nearestHospital = turf.nearest(libraryFeature, hospital);
+
+        if (nearestHospital != null) {
+          map.getSource('nearest-hospital').setData({
+            'type': 'FeatureCollection',
+            'features': [nearestHospital]
+          });
+
+          map.addLayer(
+            {
+              id: 'nearest-hospital',
+              type: 'circle',
+              source: 'nearest-hospital',
+              paint: {
+                'circle-radius': 14,
+                'circle-color': '#ff0000'
+              }
+            },
+            'hospitals'
+          );
+        }
+      });
+</script>
+
+</body>
+</html>

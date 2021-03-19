@@ -1,0 +1,99 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+
+	<title>Map of Calgary</title>
+
+
+
+	<link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico" />
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+
+	<!-- Mapbox -->
+	<script src='https://api.mapbox.com/mapbox.js/v3.3.1/mapbox.js'></script>
+	<link href='https://api.mapbox.com/mapbox.js/v3.3.1/mapbox.css' rel='stylesheet' />
+
+	<!-- Turf -->
+	<script src='https://api.mapbox.com/mapbox.js/plugins/turf/v3.0.11/turf.min.js'></script>
+
+	<style>
+    </style>
+
+</head>
+
+<body>
+
+	<div id="map" style="width: 1000px; height: 600px;"></div>
+
+
+
+<script src="Community_Services.js" type="text/javascript"></script>
+<script>
+	L.mapbox.accessToken = 'pk.eyJ1IjoicGV0ZXJzaGVuIiwiYSI6ImNrbTFhaXMyZTB2M2gycHBmaHU2bmR6ajQifQ.EEUPleBNyQJqb9nz4dcbQA';
+	var map = L.map('map').setView([51.0447, -114.0719], 14);
+	L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoicGV0ZXJzaGVuIiwiYSI6ImNrbTFhaXMyZTB2M2gycHBmaHU2bmR6ajQifQ.EEUPleBNyQJqb9nz4dcbQA', {
+		maxZoom: 18,
+		minZoom: 12,
+		attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
+			'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+		id: 'mapbox/streets-v11',
+		tileSize: 512,
+		zoomOffset: -1
+	}).addTo(map);
+
+	// L.mapbox.styleLayer('mapbox://styles/petershen/ckm40z28d11we17ljhfjyxx90').addTo(map);
+
+
+	function hospitallayer(){
+		L.mapbox.accessToken = 'pk.eyJ1IjoicGV0ZXJzaGVuIiwiYSI6ImNrbTFhaXMyZTB2M2gycHBmaHU2bmR6ajQifQ.EEUPleBNyQJqb9nz4dcbQA';
+		L.mapbox.styleLayer('mapbox://styles/petershen/ckm40z28d11we17ljhfjyxx90').addTo(map);
+	}
+	function schoollayer(){
+		L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoicGV0ZXJzaGVuIiwiYSI6ImNrbTFhaXMyZTB2M2gycHBmaHU2bmR6ajQifQ.EEUPleBNyQJqb9nz4dcbQA', {
+			maxZoom: 18,
+			minZoom: 12,
+			attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
+				'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+			id: 'mapbox/streets-v11',
+			tileSize: 512,
+			zoomOffset: -1
+		}).addTo(map);
+	}
+
+
+
+	function onEachFeature(feature, layer) {
+	var popupContent = "<p>The Hospital/Clinic Name is: " +
+				feature.properties.NAME +
+				"<p>The Type is: " + feature.properties.TYPE +
+				"<p>The Address is: " + feature.properties.ADDRESS +
+				"</p>";
+	if (feature.properties && feature.properties.popupContent) {
+			popupContent += feature.properties.popupContent;
+		}
+
+		layer.bindPopup(popupContent);
+	}
+	L.geoJSON(hospital, {
+		style: function (feature) {
+			return feature.properties && feature.properties.style;
+		},
+		// filter: function (feature, layer){
+		// 	return feature.properties.issueddate > "2020-01-20" && feature.properties.issueddate < "2021-02-20";
+		// },
+
+		onEachFeature: onEachFeature
+	}).addTo(map);
+
+
+
+</script>
+
+
+<br>
+<a href="file:///C:\Users\peter\OneDrive\桌面\Lab4_test\index.html">back to main page<br></a>
+</body>
+</html>
